@@ -154,3 +154,40 @@ with torch.no_grad():
     # Calculate the hazard ratios by exponentiating the log hazard ratios
     hazard_ratios = torch.exp(predictions)
     print("Hazard Ratios:", hazard_ratios[:10])
+
+# Convert events to boolean
+events_bool = events.astype(bool).flatten()
+
+# Calculate the C-index
+durations = df['duration'].values
+#events = df['event'].values
+c_index = concordance_index_censored(events_bool, durations, -predictions)[0]
+print(f'Concordance Index: {c_index}')
+
+
+
+### For extimating time to event
+
+#Compute the baseline survival function using Kaplan-Meier estimator
+km_time, km_survival_prob = kaplan_meier_estimator(events_bool, durations)
+
+#Compute hazard ratios
+hazard_ratios = np.exp(predictions)
+
+
+#Estimate individual survival functions
+def estimate_survival_function(hazard_ratios, baseline_survival, times):
+    return np.power(baseline_survival[:, np.newaxis], hazard_ratios)
+
+baseline_survival = np.interp(durations, km_time, km_survival_prob, left=1.0, right=0.0)
+individual_survival_functions = estimate_survival_function(hazard_ratios, baseline_survival, durations)
+
+
+#Estimate median survival time for each individual
+
+median_survival_times = []
+for survival_prob in individual_survival_functions.T:
+    median_survival_time = np.interp(0.5, np.flip(survival_prob), np.flip(km_time))
+    median_survival_times.append(median_survival_time)
+
+print("Median Survival Times:", median_survival_times[:10])
