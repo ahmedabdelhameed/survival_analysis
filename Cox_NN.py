@@ -76,12 +76,12 @@ def cox_loss(y_pred,y_true):
     events1 = events[sorted_indices1]
     log_hazard1 = log_hazard[sorted_indices1]
 
-    # Calculate the cumulative sum of exp(log_hazard) for the risk set
-    #risk_cumsum = torch.cumsum(torch.exp(log_hazard), dim=0)
-    risk_cumsum = torch.flip(torch.cumsum(torch.flip(torch.exp(log_hazard), dims=[0]), dim=0), dims=[0])
+    # Calculate the cumulative sum of exp(log_hazard1) for the risk set
+    #risk_cumsum = torch.cumsum(torch.exp(log_hazard1), dim=0)
+    risk_cumsum = torch.flip(torch.cumsum(torch.exp(log_hazard1), dim=0), dims=[0])
     
     # Calculate the log-likelihood components
-    log_likelihood = log_hazard - torch.log(risk_cumsum)
+    log_likelihood = log_hazard1 - torch.log(risk_cumsum)
     
     #Another implementation
     # sorted_indices2 = torch.argsort(durations)
@@ -90,7 +90,7 @@ def cox_loss(y_pred,y_true):
     # log_hazard2 = log_hazard[sorted_indices2]
     
     # # Calculate the cumulative sum of exp(log_hazard) for the risk set
-    # risk = torch.exp(log_hazard)
+    # risk = torch.exp(log_hazard2)
     # risk_sum = torch.zeros_like(risk)
     
     # for i in range(len(risk)):
@@ -99,7 +99,7 @@ def cox_loss(y_pred,y_true):
     
     
     # # Calculate the log-likelihood components
-    # log_likelihood = log_hazard - torch.log(risk_sum)
+    # log_likelihood = log_hazard2 - torch.log(risk_sum)
    
     
     # Consider only the events
