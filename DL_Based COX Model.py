@@ -1,11 +1,3 @@
-"""
-This script implements a neural network-based Cox Proportional Hazards (CoxPH) model using PyTorch to analyze survival data. 
-The code generates a synthetic dataset with two features, survival durations, and event indicators, which represent whether an event (e.g., failure or death) occurred. 
-The features are normalized, and both features and targets are converted into PyTorch tensors for model training. 
-The model architecture consists of three fully connected layers with ReLU activations and dropout for regularization. 
-A custom loss function is defined to compute the negative log-likelihood, which is minimized during training using the Adam optimizer. 
-The training process includes early stopping to prevent overfitting, and the model is evaluated to make predictions on the input data.
-"""
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -13,6 +5,17 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+from lifelines.utils import concordance_index  # Import for C-Index calculation
+
+"""
+This script implements a neural network-based Cox Proportional Hazards (CoxPH) model using PyTorch to analyze survival data.
+The code generates a synthetic dataset with two features, survival durations, and event indicators, which represent whether an event (e.g., failure or death) occurred.
+The features are normalized, and both features and targets are converted into PyTorch tensors for model training.
+The model architecture consists of three fully connected layers with ReLU activations and dropout for regularization.
+A custom loss function is defined to compute the negative log-likelihood, which is minimized during training using the Adam optimizer.
+The training process includes early stopping to prevent overfitting, and the model is evaluated to make predictions on the input data.
+Finally, the Concordance Index (C-Index) is calculated to assess the predictive accuracy of the model.
+"""
 
 # Set random seed for reproducibility
 torch.manual_seed(42)
@@ -130,4 +133,11 @@ train_model(num_epochs=100, patience=10)
 model.eval()  # Set the model to evaluation mode
 with torch.no_grad():
     predictions = model(X_tensor)
-    print("Predictions:", predictions[:10])
+
+# Calculate and print the Concordance Index (C-Index) to evaluate model performance
+# C-Index measures the agreement between predicted and actual order of event times
+c_index = concordance_index(df['duration'], -predictions.detach().numpy(), df['event'])
+print(f'C-Index: {c_index}')  # Higher values (closer to 1) indicate better predictive accuracy
+
+# Display the first 10 predictions as an example
+print("Predictions:", predictions[:10])
