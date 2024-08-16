@@ -1,12 +1,3 @@
-import numpy as np
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-from lifelines.utils import concordance_index  # Import for C-Index calculation
-
 """
 This script implements a neural network-based Cox Proportional Hazards (CoxPH) model using PyTorch to analyze survival data.
 The code generates a synthetic dataset with two features, survival durations, and event indicators, which represent whether an event (e.g., failure or death) occurred.
@@ -16,6 +7,17 @@ A custom loss function is defined to compute the negative log-likelihood, which 
 The training process includes early stopping to prevent overfitting, and the model is evaluated to make predictions on the input data.
 Finally, the Concordance Index (C-Index) is calculated to assess the predictive accuracy of the model.
 """
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+from lifelines.utils import concordance_index  # Import for C-Index calculation
+
+
 
 # Set random seed for reproducibility
 torch.manual_seed(42)
